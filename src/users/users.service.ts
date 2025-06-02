@@ -16,12 +16,20 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const existingUser = await this.userRepository.findOneBy({
+    const existingUserEmail = await this.userRepository.findOneBy({
       email: createUserDto.email,
     });
 
-    if (existingUser) {
+    const existingUsername = await this.userRepository.findOneBy({
+      username: createUserDto.username,
+    });
+
+    if (existingUserEmail) {
       throw new BadRequestException('User with this email already exists');
+    }
+
+    if (existingUsername) {
+      throw new BadRequestException('User with this username already exists');
     }
 
     const newUser = this.userRepository.create(createUserDto);
