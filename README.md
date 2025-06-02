@@ -21,6 +21,12 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+## MIGRATIONS
+
+npm run typeorm -- migration:generate -d src/config/data-source.ts src/database/migrations/createTables
+
+npm run typeorm -- migration:run -d src/config/data-source.ts
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
