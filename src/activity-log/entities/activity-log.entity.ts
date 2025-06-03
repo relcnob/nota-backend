@@ -6,15 +6,15 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { ShoppingList } from '../../lists/entities/list.entity';
+import { List } from '../../lists/entities/list.entity';
 
 @Entity('activity_logs')
 export class ActivityLog {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => ShoppingList, { onDelete: 'CASCADE' })
-  list: ShoppingList;
+  @ManyToOne(() => List, { onDelete: 'CASCADE' })
+  list: List;
 
   @ManyToOne(() => User, { nullable: true })
   user: User;

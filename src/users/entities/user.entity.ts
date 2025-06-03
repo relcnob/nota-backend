@@ -8,7 +8,7 @@ import {
   BeforeUpdate,
   UpdateDateColumn,
 } from 'typeorm';
-import { ShoppingList } from '../../lists/entities/list.entity';
+import { List } from '../../lists/entities/list.entity';
 import { ListItem } from '../../items/entities/item.entity';
 import { Collaborator } from '../../collaborators/entities/collaborator.entity';
 import * as bcrypt from 'bcrypt';
@@ -40,8 +40,8 @@ export class User {
   })
   updatedAt: Date;
 
-  @OneToMany(() => ShoppingList, (list) => list.owner)
-  lists: ShoppingList[];
+  @OneToMany(() => List, (list) => list.owner)
+  lists: List[];
 
   @OneToMany(() => ListItem, (item) => item.addedBy)
   items: ListItem[];

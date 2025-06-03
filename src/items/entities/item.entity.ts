@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { ShoppingList } from '../../lists/entities/list.entity';
+import { List } from '../../lists/entities/list.entity';
 
 @Entity('list_items')
 export class ListItem {
@@ -32,8 +32,8 @@ export class ListItem {
   @Column({ type: 'timestamp', nullable: true })
   purchasedAt: Date;
 
-  @ManyToOne(() => ShoppingList, (list) => list.items, { onDelete: 'CASCADE' })
-  list: ShoppingList;
+  @ManyToOne(() => List, (list) => list.items, { onDelete: 'CASCADE' })
+  list: List;
 
   @ManyToOne(() => User, (user) => user.items, { nullable: true })
   addedBy: User;
