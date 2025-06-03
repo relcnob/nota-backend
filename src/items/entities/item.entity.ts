@@ -17,7 +17,7 @@ export class ListItem {
   @Column()
   name: string;
 
-  @Column({ default: 1 })
+  @Column({ default: 1, nullable: true })
   quantity: number;
 
   @Column({ nullable: true })
@@ -26,11 +26,11 @@ export class ListItem {
   @Column({ nullable: true })
   notes: string;
 
-  @Column({ default: false })
-  purchased: boolean;
+  @Column({ default: false, nullable: true })
+  completed: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
-  purchasedAt: Date;
+  completedAt: Date;
 
   @ManyToOne(() => List, (list) => list.items, { onDelete: 'CASCADE' })
   list: List;
