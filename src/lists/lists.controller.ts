@@ -17,6 +17,7 @@ export class ListsController {
 
   @Post()
   create(@Body() createListDto: CreateListDto) {
+    console.log('Creating list with data:', createListDto);
     return this.listsService.create(createListDto);
   }
 
@@ -27,12 +28,12 @@ export class ListsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.listsService.findOne(+id);
+    return this.listsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateListDto: UpdateListDto) {
-    return this.listsService.update(+id, updateListDto);
+    return this.listsService.update(id, updateListDto);
   }
 
   @Delete(':id')

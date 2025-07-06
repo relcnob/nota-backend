@@ -6,6 +6,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { ListItem } from '../../items/entities/item.entity';
@@ -26,7 +27,11 @@ export class List {
   isPublic: boolean;
 
   @ManyToOne(() => User, (user) => user.lists, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'ownerId' })
   owner: User;
+
+  @Column()
+  readonly ownerId: string;
 
   @OneToMany(() => ListItem, (item) => item.list)
   items: ListItem[];
