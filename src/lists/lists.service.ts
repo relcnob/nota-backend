@@ -76,7 +76,7 @@ export class ListsService {
     return this.listRepository.save(list);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.listRepository.delete(id).then((result) => {
       if (result.affected === 0) {
         throw new NotFoundException(`List with ID ${id} not found`);

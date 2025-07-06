@@ -38,6 +38,6 @@ export class ListsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.listsService.remove(+id);
+    return this.listsService.remove(id);
   }
 }
