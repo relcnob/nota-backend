@@ -5,6 +5,7 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { List } from '../../lists/entities/list.entity';
@@ -32,10 +33,15 @@ export class ListItem {
   @Column({ type: 'timestamp', nullable: true })
   completedAt: Date;
 
-  @ManyToOne(() => List, (list) => list.items, { onDelete: 'CASCADE' })
+  @ManyToOne(() => List, (list) => list.items, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  @JoinColumn({ name: 'listId' })
   list: List;
 
-  @ManyToOne(() => User, (user) => user.items, { nullable: true })
+  @ManyToOne(() => User, (user) => user.items, { nullable: true, eager: true })
+  @JoinColumn({ name: 'addedById' })
   addedBy: User;
 
   @CreateDateColumn()
