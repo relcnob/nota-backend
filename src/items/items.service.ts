@@ -66,6 +66,7 @@ export class ItemsService {
     if (items.length === 0) {
       throw new NotFoundException('No items found');
     }
+
     return items;
   }
 
