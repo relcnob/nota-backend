@@ -5,7 +5,6 @@ import { AuthModule } from './auth/auth.module';
 import { ListsModule } from './lists/lists.module';
 import { ItemsModule } from './items/items.module';
 import { CollaboratorsModule } from './collaborators/collaborators.module';
-import { ActivityLogModule } from './activity-log/activity-log.module';
 import { dbConfig } from './config/data-source';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddleware } from './logger.middleware';
@@ -19,7 +18,6 @@ import { LoggerMiddleware } from './logger.middleware';
     ListsModule,
     ItemsModule,
     CollaboratorsModule,
-    ActivityLogModule,
   ],
   controllers: [],
   providers: [],
