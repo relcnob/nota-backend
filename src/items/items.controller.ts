@@ -30,23 +30,20 @@ export class ItemsController {
     return this.itemsService.findAll();
   }
 
-  @Get(':listId')
-  findOne(@Param('listId') listId: string) {
-    return this.itemsService.findOne(listId);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.itemsService.findOne(id);
   }
 
-  @Patch(':listId')
-  @Roles('owner', 'editor')
-  update(
-    @Param('listId') listId: string,
-    @Body() updateItemDto: UpdateItemDto,
-  ) {
-    return this.itemsService.update(listId, updateItemDto);
+  @Patch(':id')
+  @Roles('editor')
+  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
+    return this.itemsService.update(id, updateItemDto);
   }
 
-  @Delete(':listId')
-  @Roles('owner', 'editor')
-  remove(@Param('listId') listId: string) {
-    return this.itemsService.remove(listId);
+  @Delete(':id')
+  @Roles('editor')
+  remove(@Param('id') id: string) {
+    return this.itemsService.remove(id);
   }
 }

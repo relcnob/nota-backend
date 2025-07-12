@@ -8,12 +8,13 @@ import { LoginDto } from './dto/auth.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as jwt from 'jsonwebtoken';
 import { User } from 'src/users/entities/user.entity';
+import { SafeUser } from './auth.type';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly userService: UsersService) {}
 
-  async signup(signupDTO: CreateUserDto): Promise<User> {
+  async signup(signupDTO: CreateUserDto): Promise<SafeUser> {
     const createdUser = await this.userService.create(signupDTO);
     if (!createdUser) {
       throw new BadRequestException('Error creating user');

@@ -8,6 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteResult, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { SafeUser } from 'src/auth/auth.type';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,7 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<SafeUser> {
     const existingUserEmail = await this.userRepository.findOneBy({
       email: createUserDto.email,
     });
@@ -33,7 +34,11 @@ export class UsersService {
     }
 
     const newUser = this.userRepository.create(createUserDto);
-    return this.userRepository.save(newUser);
+    const savedUser = await this.userRepository.save(newUser);
+
+    //eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...safeUser } = savedUser;
+    return safeUser;
   }
 
   async findAll(): Promise<User[]> {
