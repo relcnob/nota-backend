@@ -24,26 +24,31 @@ export class AuthService {
   async login({
     email,
     password,
-  }: LoginDto): Promise<{ user: User; token: string }> {
+  }: LoginDto): Promise<{ user: Partial<User>; token: string }> {
     const foundUser = await this.userService.findOneByEmail(email);
+
     if (!foundUser || !foundUser.comparePassword(password)) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    //   check for inactive account (instead of deleting account Admin should be able to deactivate it)
+
     if (!foundUser.isActive) {
       throw new UnauthorizedException('Inactive account');
     }
+
     const payload = {
-      email: foundUser.email,
       id: foundUser.id,
+      email: foundUser.email,
       username: foundUser.username,
     };
+
     const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      throw new Error('JWT_SECRET is not defined');
-    }
+    if (!jwtSecret) throw new Error('JWT_SECRET is not defined');
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...safeUser } = foundUser;
+
     return {
-      user: foundUser,
+      user: safeUser,
       token: jwt.sign(payload, jwtSecret),
     };
   }

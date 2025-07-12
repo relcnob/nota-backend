@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ListItem } from './entities/item.entity';
 import { User } from 'src/users/entities/user.entity';
 import { List } from 'src/lists/entities/list.entity';
+import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ListItem, User, List])],
+  imports: [TypeOrmModule.forFeature([ListItem, User, List, Collaborator])],
   controllers: [ItemsController],
   providers: [ItemsService],
 })
