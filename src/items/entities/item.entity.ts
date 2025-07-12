@@ -5,9 +5,10 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { ShoppingList } from '../../lists/entities/list.entity';
+import { List } from '../../lists/entities/list.entity';
 
 @Entity('list_items')
 export class ListItem {
@@ -17,7 +18,7 @@ export class ListItem {
   @Column()
   name: string;
 
-  @Column({ default: 1 })
+  @Column({ default: 1, nullable: true })
   quantity: number;
 
   @Column({ nullable: true })
@@ -26,16 +27,21 @@ export class ListItem {
   @Column({ nullable: true })
   notes: string;
 
-  @Column({ default: false })
-  purchased: boolean;
+  @Column({ default: false, nullable: true })
+  completed: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
-  purchasedAt: Date;
+  completedAt: Date;
 
-  @ManyToOne(() => ShoppingList, (list) => list.items, { onDelete: 'CASCADE' })
-  list: ShoppingList;
+  @ManyToOne(() => List, (list) => list.items, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  @JoinColumn({ name: 'listId' })
+  list: List;
 
-  @ManyToOne(() => User, (user) => user.items, { nullable: true })
+  @ManyToOne(() => User, (user) => user.items, { nullable: true, eager: true })
+  @JoinColumn({ name: 'addedById' })
   addedBy: User;
 
   @CreateDateColumn()

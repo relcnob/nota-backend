@@ -1,34 +1,60 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Post,
+  Get,
+  Param,
+  Body,
+  Patch,
+  Delete,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { CollaboratorsService } from './collaborators.service';
 import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
-@Controller('collaborators')
+@Controller('lists/:listId/collaborators')
+@UseGuards(AuthGuard, RolesGuard)
 export class CollaboratorsController {
   constructor(private readonly collaboratorsService: CollaboratorsService) {}
 
   @Post()
-  create(@Body() createCollaboratorDto: CreateCollaboratorDto) {
-    return this.collaboratorsService.create(createCollaboratorDto);
+  @Roles('owner', 'editor')
+  create(
+    @Param('listId', ParseUUIDPipe) listId: string,
+    @Body() dto: CreateCollaboratorDto,
+  ) {
+    return this.collaboratorsService.create({ ...dto, listId });
   }
 
   @Get()
-  findAll() {
-    return this.collaboratorsService.findAll();
+  @Roles('owner', 'editor', 'viewer')
+  findAll(@Param('listId', ParseUUIDPipe) listId: string) {
+    return this.collaboratorsService.findAll(listId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.collaboratorsService.findOne(+id);
+  @Roles('owner', 'editor', 'viewer')
+  findOne(@Param('listId') listId: string, @Param('id') id: string) {
+    return this.collaboratorsService.findOne(id, listId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCollaboratorDto: UpdateCollaboratorDto) {
-    return this.collaboratorsService.update(+id, updateCollaboratorDto);
+  @Roles('owner') // maybe only owner can change collaborator roles
+  update(
+    @Param('listId') listId: string,
+    @Param('id') id: string,
+    @Body() dto: UpdateCollaboratorDto,
+  ) {
+    return this.collaboratorsService.update(id, listId, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.collaboratorsService.remove(+id);
+  @Roles('owner')
+  remove(@Param('listId') listId: string, @Param('id') id: string) {
+    return this.collaboratorsService.remove(id, listId);
   }
 }
