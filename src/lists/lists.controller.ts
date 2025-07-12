@@ -10,6 +10,7 @@ import {
 import { ListsService } from './lists.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('lists')
 export class ListsController {
@@ -32,11 +33,13 @@ export class ListsController {
   }
 
   @Patch(':id')
+  @Roles('owner', 'editor')
   update(@Param('id') id: string, @Body() updateListDto: UpdateListDto) {
     return this.listsService.update(id, updateListDto);
   }
 
   @Delete(':id')
+  @Roles('owner', 'editor')
   remove(@Param('id') id: string) {
     return this.listsService.remove(id);
   }
