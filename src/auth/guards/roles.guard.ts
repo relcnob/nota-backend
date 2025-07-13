@@ -77,7 +77,7 @@ export class RolesGuard implements CanActivate {
 
     if (!requiredRoles.includes(collab.role)) {
       throw new ForbiddenException(
-        `You need one of: ${requiredRoles.join(', ')}`,
+        `You need to be one of: ${requiredRoles.join(', ')}`,
       );
     }
 

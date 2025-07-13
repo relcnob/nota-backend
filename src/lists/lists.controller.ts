@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ListsService } from './lists.service';
 import { CreateListDto } from './dto/create-list.dto';
@@ -27,11 +28,12 @@ export class ListsController {
   }
 
   @Get()
-  findAll() {
-    return this.listsService.findAll();
+  findAll(@Request() req) {
+    return this.listsService.findAll(req.user.id as string);
   }
 
   @Get(':id')
+  @Roles('owner', 'editor', 'viewer')
   findOne(@Param('id') id: string) {
     return this.listsService.findOne(id);
   }

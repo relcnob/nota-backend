@@ -22,7 +22,7 @@ export class CollaboratorsController {
   constructor(private readonly collaboratorsService: CollaboratorsService) {}
 
   @Post()
-  @Roles('owner', 'editor')
+  @Roles('owner')
   create(
     @Param('listId', ParseUUIDPipe) listId: string,
     @Body() dto: CreateCollaboratorDto,
@@ -43,7 +43,7 @@ export class CollaboratorsController {
   }
 
   @Patch(':id')
-  @Roles('owner') // maybe only owner can change collaborator roles
+  @Roles('owner')
   update(
     @Param('listId') listId: string,
     @Param('id') id: string,
