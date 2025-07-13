@@ -41,8 +41,11 @@ export class UsersService {
     return safeUser;
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll() {
+    return this.userRepository.find({
+      where: { isActive: true },
+      select: ['username', 'email'],
+    });
   }
 
   async findOne(id: string): Promise<User> {

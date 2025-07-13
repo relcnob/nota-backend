@@ -39,15 +39,15 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
 
-      // Now load the full user from DB
+      // Load the user with isActive check
       const user = await this.userRepo.findOne({
-        where: { id: payload.id },
-        select: ['id', 'email', 'username'],
+        where: { id: payload.id, isActive: true }, // ✅ filter by active status
+        select: ['id', 'email', 'username', 'isActive'],
         relations: ['collaborations', 'lists'],
       });
 
       if (!user) {
-        throw new UnauthorizedException('User no longer exists');
+        throw new UnauthorizedException('User not found or inactive');
       }
 
       request.user = user;
