@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { List } from './entities/list.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
 
 @Injectable()
 export class ListsService {
@@ -13,6 +14,9 @@ export class ListsService {
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @InjectRepository(Collaborator)
+    private readonly collaboratorRepo: Repository<Collaborator>,
   ) {}
 
   async create(createListDto: CreateListDto) {
@@ -34,8 +38,28 @@ export class ListsService {
     return this.listRepository.save(newList);
   }
 
-  findAll() {
-    return this.listRepository.find({ relations: ['owner'] });
+  async findAll(userId: string) {
+    // Lists the user owns
+    const ownedLists = await this.listRepository.find({
+      where: { ownerId: userId },
+      relations: ['owner', 'collaborators', 'items'],
+    });
+
+    // Lists the user collaborates on
+    const collaborations = await this.collaboratorRepo.find({
+      where: { userId },
+      relations: ['list', 'list.owner', 'list.items'],
+    });
+
+    const collaboratorLists = collaborations.map((collab) => collab.list);
+
+    // Merge and deduplicate by ID (in case the user is both owner and collaborator)
+    const allLists = [...ownedLists, ...collaboratorLists];
+    const uniqueLists = Object.values(
+      Object.fromEntries(allLists.map((l) => [l.id, l])),
+    );
+
+    return uniqueLists;
   }
 
   findOne(id: string) {
