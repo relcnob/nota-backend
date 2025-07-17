@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { ListsService } from './lists.service';
 import { CreateListDto } from './dto/create-list.dto';
@@ -28,8 +29,12 @@ export class ListsController {
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.listsService.findAll(req.user.id as string);
+  findAll(
+    @Request() req,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.listsService.findAll(String(req.user.id), +page, +limit);
   }
 
   @Get(':id')

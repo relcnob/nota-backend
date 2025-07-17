@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { List } from './entities/list.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
@@ -38,7 +38,9 @@ export class ListsService {
     return this.listRepository.save(newList);
   }
 
-  async findAll(userId: string) {
+  async findAll(userId: string, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
     // Lists the user owns
     const ownedLists = await this.listRepository.find({
       where: { ownerId: userId },
@@ -46,12 +48,12 @@ export class ListsService {
     });
 
     // Lists the user collaborates on
-    const collaborations = await this.collaboratorRepo.find({
+    const collaborators = await this.collaboratorRepo.find({
       where: { userId },
       relations: ['list', 'list.owner', 'list.items'],
     });
 
-    const collaboratorLists = collaborations.map((collab) => collab.list);
+    const collaboratorLists = collaborators.map((collab) => collab.list);
 
     // Merge and deduplicate by ID (in case the user is both owner and collaborator)
     const allLists = [...ownedLists, ...collaboratorLists];
@@ -59,7 +61,25 @@ export class ListsService {
       Object.fromEntries(allLists.map((l) => [l.id, l])),
     );
 
-    return uniqueLists;
+    // Paginate the results
+    const [lists, total] = await this.listRepository.findAndCount({
+      where: { id: In(uniqueLists.map((list) => list.id)) },
+      skip,
+      take: limit,
+      order: { createdAt: 'DESC' },
+      relations: ['owner', 'collaborators', 'items'],
+      cache: true,
+    });
+
+    return {
+      data: lists,
+      meta: {
+        page,
+        limit,
+        totalLists: total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   findOne(id: string) {
