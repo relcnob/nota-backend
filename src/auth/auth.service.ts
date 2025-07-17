@@ -59,6 +59,12 @@ export class AuthService {
     if (!jwtSecret) {
       throw new Error('JWT_SECRET is not defined');
     }
-    return jwt.sign(user, jwtSecret);
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+
+    return jwt.sign(payload, jwtSecret, { expiresIn: '7d' });
   }
 }
