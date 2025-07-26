@@ -72,7 +72,7 @@ export class ListsService {
     });
 
     return {
-      data: lists,
+      lists: lists,
       meta: {
         page,
         limit,
