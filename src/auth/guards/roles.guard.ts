@@ -38,9 +38,13 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    const isItemRoute = request.route.path.includes('/items/:id');
-    const isListRoute = request.route.path.includes('/lists/:id');
-
+    const isItemRoute = request.route.path.includes('/items/');
+    const isListRoute = request.route.path.includes('/lists/');
+    if (!user || (!isItemRoute && !isListRoute)) {
+      throw new ForbiddenException(
+        'You must be authenticated to access this resource',
+      );
+    }
     let listId: string | undefined;
 
     if (isItemRoute) {

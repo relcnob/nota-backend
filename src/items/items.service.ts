@@ -105,27 +105,34 @@ export class ItemsService {
   // ╰──────────────────────────────────────────────────────────────╯
 
   async bulkCreate(items: CreateItemDto[]) {
-    const listIds = items.map((item) => item.listId);
+    if (!items.length) {
+      throw new NotFoundException('No items provided for bulk create');
+    }
+
+    // Get unique list and user IDs
+    const listIds = [...new Set(items.map((item) => item.listId))];
+    const addedByIds = [...new Set(items.map((item) => item.addedById))];
+
+    // Fetch all referenced lists and users
     const lists = await this.listRepository.find({
       where: { id: In(listIds) },
     });
-
-    if (lists.length !== listIds.length) {
-      throw new NotFoundException('One or more lists not found');
-    }
-
-    const addedByIds = items.map((item) => item.addedById);
-    const addedByUsers = await this.userRepository.find({
+    const users = await this.userRepository.find({
       where: { id: In(addedByIds) },
     });
 
-    if (addedByUsers.length !== addedByIds.length) {
+    // Validate all lists and users exist
+    if (lists.length !== listIds.length) {
+      throw new NotFoundException('One or more lists not found');
+    }
+    if (users.length !== addedByIds.length) {
       throw new NotFoundException('One or more users not found');
     }
 
+    // Create items with correct relations
     const newItems = items.map((item) => {
       const list = lists.find((l) => l.id === item.listId);
-      const addedBy = addedByUsers.find((u) => u.id === item.addedById);
+      const addedBy = users.find((u) => u.id === item.addedById);
       return this.itemRepository.create({
         ...item,
         list,
@@ -137,6 +144,7 @@ export class ItemsService {
   }
 
   async bulkUpdate(items: UpdateItemDto[]) {
+    console.log('Bulk update items:', items);
     const updatedItems = await Promise.all(
       items.map(async (item) => {
         const existingItem = await this.findOne(item.id);
