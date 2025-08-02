@@ -12,6 +12,7 @@ import { List } from '../../lists/entities/list.entity';
 import { ListItem } from '../../items/entities/item.entity';
 import { Collaborator } from '../../collaborators/entities/collaborator.entity';
 import * as bcrypt from 'bcrypt';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -21,6 +22,7 @@ export class User {
   @Column({ type: 'varchar', length: 100, unique: true })
   email: string;
 
+  @Exclude()
   @Column({ type: 'varchar', length: 100 })
   password: string;
 

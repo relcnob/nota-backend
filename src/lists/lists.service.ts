@@ -44,7 +44,7 @@ export class ListsService {
     // Lists the user owns
     const ownedLists = await this.listRepository.find({
       where: { ownerId: userId },
-      relations: ['owner', 'collaborators', 'items'],
+      relations: ['owner', 'collaborators', 'collaborators.user', 'items'],
     });
 
     // Lists the user collaborates on
@@ -67,12 +67,12 @@ export class ListsService {
       skip,
       take: limit,
       order: { createdAt: 'DESC' },
-      relations: ['owner', 'collaborators', 'items'],
+      relations: ['owner', 'collaborators', 'collaborators.user', 'items'],
       cache: true,
     });
 
     return {
-      data: lists,
+      lists: lists,
       meta: {
         page,
         limit,
@@ -84,7 +84,10 @@ export class ListsService {
 
   findOne(id: string) {
     return this.listRepository
-      .findOne({ where: { id }, relations: ['owner'] })
+      .findOne({
+        where: { id },
+        relations: ['owner', 'collaborators', 'collaborators.user', 'items'],
+      })
       .then((list) => {
         if (!list) {
           throw new NotFoundException(`List with ID ${id} not found`);
