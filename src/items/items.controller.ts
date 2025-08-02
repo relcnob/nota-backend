@@ -14,6 +14,8 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { BulkUpdateItemDto } from './dto/bulk-update-item.dto';
+import { BulkCreateItemDto } from './dto/bulk-create-item.dto';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('items')
@@ -45,5 +47,21 @@ export class ItemsController {
   @Roles('editor')
   remove(@Param('id') id: string) {
     return this.itemsService.remove(id);
+  }
+
+  // ╭──────────────────────────────────────────────────────────────╮
+  // │                     ✨ Bulk Item Logic ✨                   │
+  // ╰──────────────────────────────────────────────────────────────╯
+
+  @Patch('bulk')
+  @Roles('owner', 'editor')
+  bulkUpdate(@Body() dto: BulkUpdateItemDto) {
+    return this.itemsService.bulkUpdate(dto.items);
+  }
+
+  @Post('bulk')
+  @Roles('owner', 'editor')
+  bulkCreate(@Body() dto: BulkCreateItemDto) {
+    return this.itemsService.bulkCreate(dto.items);
   }
 }

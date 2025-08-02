@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { ListItem } from './entities/item.entity';
@@ -98,5 +98,52 @@ export class ItemsService {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
     return { message: `Item with ID ${id} deleted successfully` };
+  }
+
+  // ╭──────────────────────────────────────────────────────────────╮
+  // │                     ✨ Bulk Item Logic ✨                   │
+  // ╰──────────────────────────────────────────────────────────────╯
+
+  async bulkCreate(items: CreateItemDto[]) {
+    const listIds = items.map((item) => item.listId);
+    const lists = await this.listRepository.find({
+      where: { id: In(listIds) },
+    });
+
+    if (lists.length !== listIds.length) {
+      throw new NotFoundException('One or more lists not found');
+    }
+
+    const addedByIds = items.map((item) => item.addedById);
+    const addedByUsers = await this.userRepository.find({
+      where: { id: In(addedByIds) },
+    });
+
+    if (addedByUsers.length !== addedByIds.length) {
+      throw new NotFoundException('One or more users not found');
+    }
+
+    const newItems = items.map((item) => {
+      const list = lists.find((l) => l.id === item.listId);
+      const addedBy = addedByUsers.find((u) => u.id === item.addedById);
+      return this.itemRepository.create({
+        ...item,
+        list,
+        addedBy,
+      });
+    });
+
+    return this.itemRepository.save(newItems);
+  }
+
+  async bulkUpdate(items: UpdateItemDto[]) {
+    const updatedItems = await Promise.all(
+      items.map(async (item) => {
+        const existingItem = await this.findOne(item.id);
+        Object.assign(existingItem, item);
+        return this.itemRepository.save(existingItem);
+      }),
+    );
+    return updatedItems;
   }
 }
