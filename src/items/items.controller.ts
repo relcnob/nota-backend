@@ -32,42 +32,49 @@ export class ItemsController {
     return this.itemsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.itemsService.findOne(id);
-  }
-
-  @Patch(':id')
-  @Roles('editor')
-  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
-    return this.itemsService.update(id, updateItemDto);
-  }
-
-  @Delete(':id')
-  @Roles('editor')
-  remove(@Param('id') id: string) {
-    return this.itemsService.remove(id);
-  }
-
   // ╭──────────────────────────────────────────────────────────────╮
   // │                     ✨ Bulk Item Logic ✨                   │
   // ╰──────────────────────────────────────────────────────────────╯
 
   @Patch('bulk')
   @Roles('owner', 'editor')
-  bulkUpdate(@Body() dto: BulkUpdateItemDto) {
+  bulkUpdate(@Param('id') id: string, @Body() dto: BulkUpdateItemDto) {
     return this.itemsService.bulkUpdate(dto.items);
   }
 
   @Post('bulk')
   @Roles('owner', 'editor')
-  bulkCreate(@Body() dto: BulkCreateItemDto) {
+  bulkCreate(@Param('id') id: string, @Body() dto: BulkCreateItemDto) {
     return this.itemsService.bulkCreate(dto.items);
   }
 
   @Delete('bulk')
   @Roles('owner', 'editor')
-  bulkRemove(@Body() dto: { ids: string[] }) {
-    return this.itemsService.bulkRemove(dto.ids);
+  bulkRemove(
+    @Param('id') id: string,
+    @Body() dto: { items: { id: string }[] },
+  ) {
+    return this.itemsService.bulkRemove(dto.items);
+  }
+
+  // ╭──────────────────────────────────────────────────────────────╮
+  // │                     ✨ ID Item Logic ✨                     │
+  // ╰──────────────────────────────────────────────────────────────╯
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.itemsService.findOne(id);
+  }
+
+  @Patch(':id')
+  @Roles('owner', 'editor')
+  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
+    return this.itemsService.update(id, updateItemDto);
+  }
+
+  @Delete(':id')
+  @Roles('owner', 'editor')
+  remove(@Param('id') id: string) {
+    return this.itemsService.remove(id);
   }
 }

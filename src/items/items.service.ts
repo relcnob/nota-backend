@@ -163,14 +163,16 @@ export class ItemsService {
     return saved;
   }
 
-  async bulkRemove(ids: string[]) {
-    if (!ids.length) {
+  async bulkRemove(items: { id: string }[]) {
+    if (!items.length) {
       throw new NotFoundException('No item IDs provided for bulk remove');
     }
 
-    console.log('Bulk remove item IDs:', ids);
+    console.log('Bulk remove item IDs:', items);
 
-    const result = await this.itemRepository.delete({ id: In(ids) });
+    const result = await this.itemRepository.delete({
+      id: In(items.map((item) => item.id)),
+    });
     if (result.affected === 0) {
       throw new NotFoundException('No items found for the provided IDs');
     }
