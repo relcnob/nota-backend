@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { ListItem } from './entities/item.entity';
@@ -98,5 +98,84 @@ export class ItemsService {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
     return { message: `Item with ID ${id} deleted successfully` };
+  }
+
+  // ╭──────────────────────────────────────────────────────────────╮
+  // │                     ✨ Bulk Item Logic ✨                   │
+  // ╰──────────────────────────────────────────────────────────────╯
+
+  async bulkCreate(items: CreateItemDto[]) {
+    if (!items.length) {
+      throw new NotFoundException('No items provided for bulk create');
+    }
+
+    // Get unique list and user IDs
+    const listIds = [...new Set(items.map((item) => item.listId))];
+    const addedByIds = [...new Set(items.map((item) => item.addedById))];
+
+    // Fetch all referenced lists and users
+    const lists = await this.listRepository.find({
+      where: { id: In(listIds) },
+    });
+    const users = await this.userRepository.find({
+      where: { id: In(addedByIds) },
+    });
+
+    // Validate all lists and users exist
+    if (lists.length !== listIds.length) {
+      throw new NotFoundException('One or more lists not found');
+    }
+    if (users.length !== addedByIds.length) {
+      throw new NotFoundException('One or more users not found');
+    }
+
+    // Create items with correct relations
+    const newItems = items.map((item) => {
+      const list = lists.find((l) => l.id === item.listId);
+      const addedBy = users.find((u) => u.id === item.addedById);
+      return this.itemRepository.create({
+        ...item,
+        list,
+        addedBy,
+      });
+    });
+
+    return this.itemRepository.save(newItems);
+  }
+
+  async bulkUpdate(items: UpdateItemDto[]) {
+    const itemIds = items.map((item) => item.id);
+    const existingItems = await this.itemRepository.findBy({ id: In(itemIds) });
+
+    const itemMap = new Map(existingItems.map((item) => [item.id, item]));
+
+    const merged: ListItem[] = items
+      .map((incoming) => {
+        const existing = itemMap.get(incoming.id);
+        if (!existing) return null;
+        Object.assign(existing, incoming);
+        return existing;
+      })
+      .filter((item): item is ListItem => item !== null);
+
+    const saved = await this.itemRepository.save(merged);
+
+    return saved;
+  }
+
+  async bulkRemove(items: { id: string }[]) {
+    if (!items.length) {
+      throw new NotFoundException('No item IDs provided for bulk remove');
+    }
+
+    console.log('Bulk remove item IDs:', items);
+
+    const result = await this.itemRepository.delete({
+      id: In(items.map((item) => item.id)),
+    });
+    if (result.affected === 0) {
+      throw new NotFoundException('No items found for the provided IDs');
+    }
+    return { message: 'Items deleted successfully' };
   }
 }
