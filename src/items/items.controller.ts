@@ -64,4 +64,10 @@ export class ItemsController {
   bulkCreate(@Body() dto: BulkCreateItemDto) {
     return this.itemsService.bulkCreate(dto.items);
   }
+
+  @Delete('bulk')
+  @Roles('owner', 'editor')
+  bulkRemove(@Body() dto: { ids: string[] }) {
+    return this.itemsService.bulkRemove(dto.ids);
+  }
 }

@@ -144,14 +144,36 @@ export class ItemsService {
   }
 
   async bulkUpdate(items: UpdateItemDto[]) {
-    console.log('Bulk update items:', items);
-    const updatedItems = await Promise.all(
-      items.map(async (item) => {
-        const existingItem = await this.findOne(item.id);
-        Object.assign(existingItem, item);
-        return this.itemRepository.save(existingItem);
-      }),
-    );
-    return updatedItems;
+    const itemIds = items.map((item) => item.id);
+    const existingItems = await this.itemRepository.findBy({ id: In(itemIds) });
+
+    const itemMap = new Map(existingItems.map((item) => [item.id, item]));
+
+    const merged: ListItem[] = items
+      .map((incoming) => {
+        const existing = itemMap.get(incoming.id);
+        if (!existing) return null;
+        Object.assign(existing, incoming);
+        return existing;
+      })
+      .filter((item): item is ListItem => item !== null);
+
+    const saved = await this.itemRepository.save(merged);
+
+    return saved;
+  }
+
+  async bulkRemove(ids: string[]) {
+    if (!ids.length) {
+      throw new NotFoundException('No item IDs provided for bulk remove');
+    }
+
+    console.log('Bulk remove item IDs:', ids);
+
+    const result = await this.itemRepository.delete({ id: In(ids) });
+    if (result.affected === 0) {
+      throw new NotFoundException('No items found for the provided IDs');
+    }
+    return { message: 'Items deleted successfully' };
   }
 }
