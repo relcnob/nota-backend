@@ -6,7 +6,6 @@ import {
   IsString,
   IsUUID,
   IsNumber,
-  Min,
 } from 'class-validator';
 
 export class CreateItemDto {
@@ -16,7 +15,6 @@ export class CreateItemDto {
 
   @IsOptional()
   @IsNumber()
-  @Min(1)
   quantity?: number = 1;
 
   @IsOptional()
