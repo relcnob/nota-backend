@@ -8,6 +8,7 @@ import {
   Delete,
   BadRequestException,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,18 +20,21 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @HttpCode(201)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @UseGuards(AuthGuard)
   @Get()
+  @HttpCode(200)
   findAll() {
     return this.usersService.findAll();
   }
 
   @UseGuards(AuthGuard)
   @Get(':id')
+  @HttpCode(200)
   findOne(@Param('id') id: string) {
     this.validateUserId(id);
     return this.usersService.findOne(id);
@@ -38,6 +42,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
+  @HttpCode(200)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     this.validateUserId(id);
     return this.usersService.update(id, updateUserDto);
@@ -45,6 +50,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
+  @HttpCode(204)
   remove(@Param('id') id: string) {
     this.validateUserId(id);
     return this.usersService.remove(id);

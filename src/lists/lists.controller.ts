@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import { ListsService } from './lists.service';
 import { CreateListDto } from './dto/create-list.dto';
@@ -23,12 +24,14 @@ export class ListsController {
   constructor(private readonly listsService: ListsService) {}
 
   @Post()
+  @HttpCode(201)
   create(@Body() createListDto: CreateListDto) {
     console.log('Creating list with data:', createListDto);
     return this.listsService.create(createListDto);
   }
 
   @Get()
+  @HttpCode(200)
   findAll(
     @Request() req,
     @Query('page') page: number = 1,
@@ -38,18 +41,21 @@ export class ListsController {
   }
 
   @Get(':id')
+  @HttpCode(200)
   @Roles('owner', 'editor', 'viewer')
   findOne(@Param('id') id: string) {
     return this.listsService.findOne(id);
   }
 
   @Patch(':id')
+  @HttpCode(200)
   @Roles('owner', 'editor')
   update(@Param('id') id: string, @Body() updateListDto: UpdateListDto) {
     return this.listsService.update(id, updateListDto);
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @Roles('owner', 'editor')
   remove(@Param('id') id: string) {
     return this.listsService.remove(id);
