@@ -120,6 +120,7 @@ export class ListsService {
     }
 
     Object.assign(list, updateListDto);
+    Object.assign(list, { updatedAt: new Date() });
     return this.listRepository.save(list);
   }
 

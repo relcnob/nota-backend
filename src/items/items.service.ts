@@ -89,7 +89,17 @@ export class ItemsService {
   async update(id: string, updateItemDto: UpdateItemDto) {
     const item = await this.findOne(id); // will throw if not found
     Object.assign(item, updateItemDto);
-    return this.itemRepository.save(item);
+    const saved = await this.itemRepository.save(item);
+
+    // Update the parent list's updatedAt field
+    if (saved.list?.id) {
+      await this.listRepository.update(
+        { id: saved.list.id },
+        { updatedAt: new Date() },
+      );
+    }
+
+    return saved;
   }
 
   async remove(id: string) {
@@ -159,6 +169,17 @@ export class ItemsService {
       .filter((item): item is ListItem => item !== null);
 
     const saved = await this.itemRepository.save(merged);
+
+    // Update affected lists' updatedAt field
+    const affectedListIds = [
+      ...new Set(saved.map((item) => item.list?.id).filter(Boolean)),
+    ];
+    if (affectedListIds.length > 0) {
+      await this.listRepository.update(
+        { id: In(affectedListIds) },
+        { updatedAt: new Date() },
+      );
+    }
 
     return saved;
   }
