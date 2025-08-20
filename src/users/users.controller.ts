@@ -33,6 +33,16 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('email')
+  @HttpCode(200)
+  findOneByEmail(@Body('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    return this.usersService.findOneByEmail(email);
+  }
+
+  @UseGuards(AuthGuard)
   @Get(':id')
   @HttpCode(200)
   findOne(@Param('id') id: string) {
