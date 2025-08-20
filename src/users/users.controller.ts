@@ -33,9 +33,10 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('email')
+  @Get('email/:email')
   @HttpCode(200)
-  findOneByEmail(@Body('email') email: string) {
+  findOneByEmail(@Param('email') email: string) {
+    console.log('Finding user by email:', email);
     if (!email) {
       throw new BadRequestException('Email is required');
     }

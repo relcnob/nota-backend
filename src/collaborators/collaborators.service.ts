@@ -44,6 +44,32 @@ export class CollaboratorsService {
     return this.collaboratorRepo.save(collab);
   }
 
+  async createByEmail(
+    dto: Partial<CreateCollaboratorDto> & { email: string; listId: string },
+  ) {
+    const { email, listId, role } = dto;
+
+    const user = await this.userRepo.findOneBy({ email });
+    if (!user)
+      throw new NotFoundException(`User with email ${email} not found`);
+
+    const list = await this.listRepo.findOneBy({ id: listId });
+    if (!list) throw new NotFoundException(`List ${listId} not found`);
+
+    const existing = await this.collaboratorRepo.findOneBy({
+      userId: user.id,
+      listId,
+    });
+    if (existing) {
+      throw new ConflictException(
+        `User ${user.id} is already a collaborator on list ${listId}`,
+      );
+    }
+
+    const collab = this.collaboratorRepo.create({ user, list, role });
+    return this.collaboratorRepo.save(collab);
+  }
+
   async findAll(listId: string) {
     return this.collaboratorRepo.find({
       where: { listId },

@@ -8,6 +8,7 @@ import {
   Patch,
   Delete,
   ParseUUIDPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { CollaboratorsService } from './collaborators.service';
 import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
@@ -28,6 +29,19 @@ export class CollaboratorsController {
     @Body() dto: CreateCollaboratorDto,
   ) {
     return this.collaboratorsService.create({ ...dto, listId });
+  }
+
+  @Post('email')
+  @Roles('owner')
+  createWithEmail(
+    @Param('listId', ParseUUIDPipe) listId: string,
+    @Body('email') email: string,
+    @Body('role') role: 'viewer' | 'editor',
+  ) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    return this.collaboratorsService.createByEmail({ email, listId, role });
   }
 
   @Get()
