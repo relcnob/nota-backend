@@ -72,7 +72,7 @@ export class RolesGuard implements CanActivate {
     }
 
     if (isListRoute) {
-      listId = request.params.id || request.params.listId;
+      listId = request.params.listId || request.params.id;
     }
 
     if (isBulkRoute) {

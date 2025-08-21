@@ -52,8 +52,8 @@ export class CollaboratorsController {
 
   @Get(':id')
   @Roles('owner', 'editor', 'viewer')
-  findOne(@Param('listId') listId: string, @Param('id') id: string) {
-    return this.collaboratorsService.findOne(id, listId);
+  findOne(@Param('id') id: string) {
+    return this.collaboratorsService.findOne(id);
   }
 
   @Patch(':id')
@@ -63,12 +63,12 @@ export class CollaboratorsController {
     @Param('id') id: string,
     @Body() dto: UpdateCollaboratorDto,
   ) {
-    return this.collaboratorsService.update(id, listId, dto);
+    return this.collaboratorsService.update(id, dto);
   }
 
   @Delete(':id')
   @Roles('owner')
-  remove(@Param('listId') listId: string, @Param('id') id: string) {
-    return this.collaboratorsService.remove(id, listId);
+  remove(@Param('id') id: string) {
+    return this.collaboratorsService.remove(id);
   }
 }

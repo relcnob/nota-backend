@@ -77,30 +77,28 @@ export class CollaboratorsService {
     });
   }
 
-  async findOne(id: string, listId: string) {
+  async findOne(id: string) {
     const collab = await this.collaboratorRepo.findOne({
-      where: { id, listId },
+      where: { id },
       relations: ['user'],
     });
 
     if (!collab) {
-      throw new NotFoundException(
-        `Collaborator ${id} not found in list ${listId}`,
-      );
+      throw new NotFoundException(`Collaborator ${id}`);
     }
 
     return collab;
   }
 
-  async update(id: string, listId: string, dto: UpdateCollaboratorDto) {
-    const collab = await this.findOne(id, listId);
+  async update(id: string, dto: UpdateCollaboratorDto) {
+    const collab = await this.findOne(id);
     Object.assign(collab, dto);
     return this.collaboratorRepo.save(collab);
   }
 
-  async remove(id: string, listId: string) {
-    const existing = await this.findOne(id, listId);
+  async remove(id: string) {
+    const existing = await this.findOne(id);
     await this.collaboratorRepo.remove(existing);
-    return { message: `Collaborator ${id} removed from list ${listId}` };
+    return { message: `Collaborator ${id}` };
   }
 }
