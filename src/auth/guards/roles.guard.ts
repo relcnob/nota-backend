@@ -72,7 +72,7 @@ export class RolesGuard implements CanActivate {
     }
 
     if (isListRoute) {
-      listId = request.params.id;
+      listId = request.params.listId || request.params.id;
     }
 
     if (isBulkRoute) {
@@ -98,7 +98,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const list = await this.listRepo.findOneBy({ id: listId });
-    if (list?.ownerId === user.id) return true;
+    if (list && list.ownerId == user.id) return true;
 
     const collab = await this.collabRepo.findOneBy({
       userId: user.id,
