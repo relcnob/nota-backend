@@ -39,9 +39,9 @@ export class List {
   @OneToMany(() => Collaborator, (collab) => collab.list)
   collaborators: Collaborator[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

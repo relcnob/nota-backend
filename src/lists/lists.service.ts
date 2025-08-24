@@ -32,7 +32,7 @@ export class ListsService {
 
     const newList = this.listRepository.create({
       ...createListDto,
-      owner: user, // ensure relation is set
+      owner: user,
     });
 
     return this.listRepository.save(newList);
