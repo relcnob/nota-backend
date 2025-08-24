@@ -33,6 +33,6 @@ export class Collaborator {
   @Column({ type: 'varchar', default: 'viewer' })
   role: 'viewer' | 'editor';
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   addedAt: Date;
 }
