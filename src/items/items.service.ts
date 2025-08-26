@@ -52,6 +52,11 @@ export class ItemsService {
       addedBy,
     });
 
+    await this.listRepository.update(
+      { id: list.id },
+      { updatedAt: new Date() },
+    );
+
     return this.itemRepository.save(item);
   }
 
@@ -103,10 +108,18 @@ export class ItemsService {
   }
 
   async remove(id: string) {
+    const itemToBeDeleted = await this.itemRepository.findOneBy({ id });
     const result = await this.itemRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
+    if (itemToBeDeleted) {
+      await this.listRepository.update(
+        { id: itemToBeDeleted.list.id },
+        { updatedAt: new Date() },
+      );
+    }
+
     return { message: `Item with ID ${id} deleted successfully` };
   }
 
@@ -150,6 +163,13 @@ export class ItemsService {
       });
     });
 
+    // Update lists timestamp
+    const updatedListIds = [...new Set(newItems.map((item) => item.list.id))];
+    await this.listRepository.update(
+      { id: In(updatedListIds) },
+      { updatedAt: new Date() },
+    );
+
     return this.itemRepository.save(newItems);
   }
 
@@ -180,6 +200,11 @@ export class ItemsService {
         { updatedAt: new Date() },
       );
     }
+    // Update lists timestamp
+    await this.listRepository.update(
+      { id: In(affectedListIds) },
+      { updatedAt: new Date() },
+    );
 
     return saved;
   }
@@ -188,8 +213,15 @@ export class ItemsService {
     if (!items.length) {
       throw new NotFoundException('No item IDs provided for bulk remove');
     }
+    // Update lists timestamp
+    const affectedItems = await this.itemRepository.findBy({
+      id: In(items.map((item) => item.id)),
+    });
 
-    console.log('Bulk remove item IDs:', items);
+    await this.listRepository.update(
+      { id: In(affectedItems.map((item) => item.list.id)) },
+      { updatedAt: new Date() },
+    );
 
     const result = await this.itemRepository.delete({
       id: In(items.map((item) => item.id)),
