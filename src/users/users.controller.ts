@@ -14,6 +14,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { IsSelfGuard } from 'src/auth/guards/isSelf.guard';
 
 @Controller('users')
 export class UsersController {
@@ -32,7 +33,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, IsSelfGuard)
   @Get('email/:email')
   @HttpCode(200)
   findOneByEmail(@Param('email') email: string) {
@@ -43,7 +44,15 @@ export class UsersController {
     return this.usersService.findOneByEmail(email);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, IsSelfGuard)
+  @Get(':id/dashboard')
+  @HttpCode(200)
+  findDashboardMetrics(@Param('id') id: string) {
+    this.validateUserId(id);
+    return this.usersService.findDashboardMetrics(id);
+  }
+
+  @UseGuards(AuthGuard, IsSelfGuard)
   @Get(':id')
   @HttpCode(200)
   findOne(@Param('id') id: string) {
@@ -51,7 +60,7 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, IsSelfGuard)
   @Patch(':id')
   @HttpCode(200)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
@@ -59,7 +68,7 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, IsSelfGuard)
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id') id: string) {
@@ -68,8 +77,8 @@ export class UsersController {
   }
 
   validateUserId(id: string) {
-    if (isNaN(+id)) {
-      throw new BadRequestException('User id is not a number');
+    if (!isNaN(+id)) {
+      throw new BadRequestException('User id has to be a string');
     }
   }
 }
