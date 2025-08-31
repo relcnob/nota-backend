@@ -13,12 +13,12 @@ import { List } from 'src/lists/entities/list.entity';
 import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
 
 type DashboardMetricsResponse = {
-  TotalLists: number;
-  UpdatedInPastDay: number;
-  CollaboratedOn: number;
-  CreatedByUser: number;
-  RecentlyUpdatedLists: List[];
-  CommonCollaborators: Partial<User>[];
+  totalLists: number;
+  updatedInPastDay: number;
+  collaboratedOn: number;
+  createdByUser: number;
+  recentlyUpdatedLists: List[];
+  commonCollaborators: Partial<User>[];
 };
 
 @Injectable()
@@ -84,12 +84,12 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    let TotalLists = 0;
-    let UpdatedInPastDay = 0;
-    let CollaboratedOn = 0;
-    let CreatedByUser = 0;
-    let RecentlyUpdatedLists: List[] = [];
-    let CommonCollaborators: Partial<User>[] = [];
+    let totalLists = 0;
+    let updatedInPastDay = 0;
+    let collaboratedOn = 0;
+    let createdByUser = 0;
+    let recentlyUpdatedLists: List[] = [];
+    let commonCollaborators: Partial<User>[] = [];
 
     const collaborations = await this.collaboratorRepository.find({
       where: { userId: foundUser.id },
@@ -159,13 +159,13 @@ export class UsersService {
         .filter(Boolean);
     }
 
-    const commonCollaborators = [
+    const allCollaborators = [
       ...collaboratorsOnUserLists,
       ...ownersOfListsCollaboratedOn,
     ];
 
     const uniqueCollaborators = Object.values(
-      commonCollaborators.reduce(
+      allCollaborators.reduce(
         (acc, user) => {
           if (user && user.id) acc[user.id] = user;
           return acc;
@@ -174,20 +174,20 @@ export class UsersService {
       ),
     );
 
-    TotalLists = listsCreatedByUser.length + collaborations.length;
-    UpdatedInPastDay = listsUpdatedInPastDay.length;
-    CollaboratedOn = collaborations.length;
-    CreatedByUser = listsCreatedByUser.length;
-    RecentlyUpdatedLists = recentlyUpdated.slice(0, 5);
-    CommonCollaborators = uniqueCollaborators;
+    totalLists = listsCreatedByUser.length + collaborations.length;
+    updatedInPastDay = listsUpdatedInPastDay.length;
+    collaboratedOn = collaborations.length;
+    createdByUser = listsCreatedByUser.length;
+    recentlyUpdatedLists = recentlyUpdated.slice(0, 5);
+    commonCollaborators = uniqueCollaborators;
 
     return {
-      TotalLists,
-      UpdatedInPastDay,
-      CollaboratedOn,
-      CreatedByUser,
-      RecentlyUpdatedLists,
-      CommonCollaborators,
+      totalLists,
+      updatedInPastDay,
+      collaboratedOn,
+      createdByUser,
+      recentlyUpdatedLists,
+      commonCollaborators,
     };
   }
 
